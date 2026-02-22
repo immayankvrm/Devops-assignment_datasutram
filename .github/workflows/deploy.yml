@@ -12,19 +12,31 @@ jobs:
     steps:
 
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
+      # ---------------- Docker Login ----------------
       - name: Docker Login
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: Build Docker Image
+      # ---------------- Build Node Image ----------------
+      - name: Build Node Image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/client-a-node:${{ github.sha }} .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/client-a-node:${{ github.sha }} ./client-a-node-app
 
-      - name: Push Docker Image
+      - name: Push Node Image
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/client-a-node:${{ github.sha }}
 
+      # ---------------- Build Python Image ----------------
+      - name: Build Python Image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/client-b-python:${{ github.sha }} ./client-b-python-app
+
+      - name: Push Python Image
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/client-b-python:${{ github.sha }}
+
+      # ---------------- Deploy to Swarm ----------------
       - name: Deploy to Swarm
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -35,3 +47,7 @@ jobs:
             docker service update \
               --image ${{ secrets.DOCKER_USERNAME }}/client-a-node:${{ github.sha }} \
               multiapp_client-a
+
+            docker service update \
+              --image ${{ secrets.DOCKER_USERNAME }}/client-b-python:${{ github.sha }} \
+              multiapp_client-b
