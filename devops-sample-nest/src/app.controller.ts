@@ -9,14 +9,14 @@ export class AppController {
   getHealth() {
     return {
       status: 'ok',
-      service: 'nestjs-app'
+      service: 'nestjs-app',
     };
   }
 
   @Get('hello')
   sayHello() {
     return {
-      message: 'Hello from NestJS v2'
+      message: 'Hello from NestJS v3',
     };
   }
 
@@ -25,7 +25,7 @@ export class AppController {
     return {
       id,
       name: 'Sample User',
-      role: 'Developer'
+      role: 'Developer',
     };
   }
 }
